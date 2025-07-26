@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <meta name="description" content="Sheep's Janky Flight Planner for Roblox PTFS">
+    <meta name="keywords" content="Roblox, PTFS, Flight Planner, Janky Flight Planner, VFR, IFR, Flight Plan, Aviation">
+    <meta name="author" content="SheepShoop">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Sheep's Janky Flight Planner</title>
+</head>
+<body>
+    
+    <header>
+        <h1>Sheeps Janky Flight Planner</h1>
+        <div class="header-buttons">
+            <a href="https://github.com/sheepdude289" target="_blank" class="header-button" aria-label="Github">
+                <i class="fa-brands fa-github"></i>
+            </a>
+            <a href="#" class="header-button" aria-label="Sheep's Janky Chart Viewer">
+                <i class="fa-regular fa-map"></i>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <section id="flight-planner">
+            <h2>The Very Janky Flight Planner</h2>
+<form id="flight-form">
+
+                <div id="flight-plan-type" style="margin-top: 5px;"></div>
+
+                <label for="callsign">In Game Callsign:</label>
+                <input type="text" id="ingame-callsign" name="ingame-callsign" required placeholder="e.g. Jetbloo 1234">
+
+                <hr>
+
+                <label for="callsign">Callsign:</label>
+                <input type="text" id="callsign" name="callsign" required placeholder="e.g. Jetblue 1234">
+                <div id="autofill-prompt" style="margin-top: 5px; font-size: 0.9em; color: blue;"></div>
+                <hr>
+                
+                <label for="departure">Aircraft Type:</label>
+                <input type="text" id="aircraft" name="aircraft" required placeholder="Aircraft ICAO">
+
+                <hr>
+
+                <div class="inline-group flight-rules-group" style="margin-top: 10px;">
+                    <span>Flight Rules:</span>
+                    <button type="button" id="ifrButton" class="flight-rule-button">IFR</button>
+                    <button type="button" id="vfrButton" class="flight-rule-button">VFR</button>
+                </div>
+
+                <hr>
+
+                <label for="departure">Departure:</label>
+                <input type="text" id="departure" name="departure" required placeholder="Departure ICAO">
+
+                <hr>
+
+                <label for="arrival">Arrival:</label>
+                <input type="text" id="arrival" name="arrival" required placeholder="Arrival ICAO">
+
+                <hr>
+
+                <label for="flight-level">Flight Level:</label>
+                <input type="text" id="flight-level" name="flight-level" placeholder="e.g. 050">
+
+                <hr>
+
+                <div class="inline-group" style="display: flex; align-items: center; gap: 10px; flex-wrap: nowrap;">
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <label for="route" style="white-space: nowrap;">Route:</label>
+                        <input type="text" id="route" name="route" required placeholder="via HONDA" style="min-width: 120px;">
+                    </div>
+
+                    <span style="display: none;">Or</span>
+                    <div style="display: flex; align-items: center; gap: 8px;  display: none;">
+                        <button type="button" id="generate-flight-plan">Generate One For Me</button>
+                        <span style="white-space: nowrap;">
+                            Using 
+                            <input type="number" id="waypoint-count" min="1" max="50" value="3" style="width: 35px; text-align: center;"> 
+                            waypoints
+                    </div>
+                </div>
+
+                <hr>
+                <br>
+
+                <button type="submit">Plan Flight</button>
+                <button type="button" id="reset-form" style="margin-left: 10px;">Reset Fligh Plan</button>
+                <button type="button" id="auto-fill-form" style="background-color: blue; margin-left: 10px; display: none;">Auto Fill Form</button>
+            </form>
+        </section>
+
+        <div id="flight-results">
+            <h2>Flight Results</h2>
+            <div id="results">
+                <p style="text-align: center;">Your flight plan will be displayed here after you submit it.</p>
+                <p>Make sure you have entered <span style="font-weight: bold;">valid callsigns</span>. If not, you could get in trouble if you copy paste!</p>
+            </div>
+        </div>
+
+        <div id="flight-map">
+            <h2>Flight Map</h2>
+            <p style="text-align: center; margin: 10px 0;">You can click on waypoints to display their names.</p>
+            <div style="text-align: center; margin-bottom: 15px;">
+                <button type="button" id="clear-waypoints" style="cursor: pointer;">Clear Waypoint Texts</button>
+            </div>
+            <div id="map">
+                <img src="map.png" alt="PTFS Map" id="map-image">
+                <svg id="route-line-svg" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;"></svg>
+                <div id="waypoint-container"></div>
+            </div>
+        </div>
+
+        <div id="chart-links">
+            <h2>Chart Links</h2>
+            <div id="chart-results">
+                <p id="in-dev">In Developement!</p>
+                <p id="in-dev">While this feature is in development, you can use <span id="twentyfour-charts">24Charts</span> to view any chart you want (note: charts take 2-3 seconds to load): <a href="https://charts.awdevsoftware.org/">https://charts.awdevsoftware.org/</a> </p>
+            </div>
+        </div>
+        
+    </main>
+    
+    <script src="app.js"></script>
+</body>
+</html>

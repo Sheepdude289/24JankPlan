@@ -1,0 +1,183 @@
+body {
+    margin-top: 100px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex-grow: 1;
+}
+
+header {
+    background-color: #f0f0f0;
+    color: black;
+    border-bottom: #a9a9a9 1px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 20px;
+    box-sizing: border-box;
+    text-align: left;
+    width: 100%;
+    top: 0;
+    left: 0;
+    position: absolute;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+}
+
+.header-buttons {
+    display: flex;
+    gap: 10px;
+    margin-left: 10px;
+    margin-top: 10px; /* Add top margin to move buttons down */
+    align-items: flex-end; /* Align items to the bottom of the container */
+    height: 100%; /* Take full height of header */
+    padding-bottom: 5px; /* Add some padding at the bottom */
+}
+
+.header-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    background-color: #f0f0f0;
+    border: #a9a9a9 1px solid;
+    color: black;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 0.75rem;
+}
+
+.header-button svg {
+    margin-bottom: 4px;
+    fill: rgb(0, 0, 0);
+}
+
+/* Style for Font Awesome icons in header */
+.header-button i {
+    font-size: 1.5rem; /* 24px */
+    color: inherit;
+}
+
+.header-button:hover {
+    background-color: #555;
+}
+
+#flight-planner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#map {
+    position: relative;
+    width: 80vw;
+    max-width: 600px;
+    aspect-ratio: 1 / 1;
+    margin: 0 auto;
+}
+
+#map img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 15px;
+}
+
+.waypoint-marker {
+    position: absolute;
+    background-color: blue;
+    width: 5px;
+    height: 5px;
+    transform: translate(-50%, -50%) rotate(45deg);
+    cursor: pointer;
+    border: 1px solid white;
+}
+
+.airport-marker {
+    position: absolute;
+    background-color: black;
+    width: 5px;
+    height: 5px;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    border: 1px solid white;
+}
+
+.vor-marker {
+    position: absolute;
+    background-color: red;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    border: 1px solid white;
+    z-index: 1;
+}
+
+.waypoint-marker {
+    z-index: 1;
+}
+
+.airport-marker {
+    z-index: 1;
+}
+
+#route-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+#flight-results {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#flight-map {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#chart-links {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#in-dev {
+    text-align: center;
+}
+
+#twentyfour-charts {
+    font-weight: bold;
+}
+
+.flight-rules-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.flight-rule-button:hover {
+    background-color: #cfcfcf;
+}
+
+.flight-rule-button.selected {
+    background-color: #b0b0b0;
+}
