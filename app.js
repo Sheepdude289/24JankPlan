@@ -17,7 +17,7 @@ const airports = [
     { icao: "IHEN", fullName: "Henstridge" },
     { icao: "IBAR", fullName: "Barra" },
     { icao: "ISCM", fullName: "RAF Scampton" },
-    { icao: "ISAU", fullName: "Sauthamptona" },
+    { icao: "ISAU", fullName: "Sauthemptona" },
     { icao: "ISKP", fullName: "Skopelos" },
     { icao: "IJAF", fullName: "Al Najaf" },
     { icao: "IUFO", fullName: "UFO Base" }
@@ -175,7 +175,7 @@ const mapAirports = [
     { id: "IHEN", xPercent: 65.17, yPercent: 73.45 }, // Henstridge Airfield
     { id: "IBAR", xPercent: 74.00, yPercent: 71.29 }, // Barra Airport
     { id: "ISCM", xPercent: 81.00, yPercent: 38.12 }, // RAF Scampton
-    { id: "ISAU", xPercent: 18.17, yPercent: 62.28 }, // Sauthamptona Airport
+    { id: "ISAU", xPercent: 18.17, yPercent: 62.28 }, // Sauthemptona Airport
     { id: "ISKP", xPercent: 72.83, yPercent: 51.45 }, // Skopelos Airfield
     { id: "IJAF", xPercent: 87.67, yPercent: 41.62 }, // Al Najaf
 ];
@@ -185,200 +185,166 @@ const form = document.getElementById("flight-form");
 const generateBtn = document.getElementById("generate-flight-plan");
 const resultsDiv = document.getElementById("results");
 
-const autofillPromptDiv = document.getElementById("autofill-prompt");
 const ingameCallsignInput = document.getElementById("ingame-callsign");
 const callsignInput = document.getElementById("callsign");
 
-// Mapping of in-game callsign prefixes/full to actual callsigns
-const callsignMapping = {
-    "Aer Dingus": "Aer Lingus",
-    "Aeroflat": "Aeroflot",
-    "Air Canadian": "Air Canada",
-    "AirBalistic": "Air Baltic",
-    "Air French": "Air France",
-    "Air Old Zealand": "Air New Zealand",
-    "Americano Airlines": "American Airlines",
-    "Antonov Airlines": "Antonov Airlines",
-    "Azol": "Azul Brazilian Airlines",
-    "Belta": "Delta",
-    "Bepsi": "Air France",
-    "Beti Airlines": "Yeti Airlines",
-    "Bizz Air": "Wizz Air",
-    "Bliss Airlines": "Swiss Airlines",
-    "Britain Airways": "British Airways",
-    "Byanair": "Ryanair",
-    "Cafe Pacific": "Cathay Pacific",
-    "Cedu Pacific": "Cebu Pacific",
-    "Dan Am": "Pan Am",
-    "Doncor": "Condor",
-    "Emarates": "Emirates",
-    "Flybee": "Flybe",
-    "Hardjet": "EasyJet",
-    "Ideria": "Iberia",
-    "Jetbloo": "Jetblue",
-    "Jet3": "Jet2",
-    "KLN": "KLM",
-    "Koreen Air": "Korean Air",
-    "Koreen Air Cargo": "Korean Air Cargo",
-    "KOT": "LOT Polish Airways",
-    "Lifthansa": "Lufthansa",
-    "Lui": "TUI",
-    "Northeast": "Southwest",
-    "Oantas": "Qantas",
-    "Oatar": "Qatari",
-    "Reunited Airlines": "United",
-    "Scandialian Airlines": "Scandinavian Airlines",
-    "Singadoor Airlines": "Singapore Airlines",
-    "Sprit": "Spirit Wings",
-    "SUS": "UPS",
-    "TedEx": "FedEx",
-    "Thay Airways": "Thai",
-    "Turkey Airlines": "Turkish",
-    "VHL": "DHL"
+// Function to get canonical callsign (kept for compatibility)
+function getCanonicalCallsign(input) {
+    return input; // Simply return input as is
+}
+
+// Function to get ingame callsign (kept for compatibility)
+function getIngameCallsign(input) {
+    return input; // Simply return input as is
+}
+
+// Chart links data
+const chartLinks = {
+    "IGAR": "https://charts.awdevsoftware.org/#375",
+    "IJAF": "https://charts.awdevsoftware.org/#288",
+    "IBAR": "https://charts.awdevsoftware.org/#226",
+    "IBLT": "https://charts.awdevsoftware.org/#384",
+    "IRFD": "https://charts.awdevsoftware.org/#355",
+    "IGRV": "https://charts.awdevsoftware.org/#233",
+    "IHEN": "https://charts.awdevsoftware.org/#244",
+    "IZOL": "https://charts.awdevsoftware.org/#249",
+    "ILAR": "https://charts.awdevsoftware.org/#157",
+    "ILKL": "https://charts.awdevsoftware.org/#269",
+    "IIAB": "https://charts.awdevsoftware.org/#123",
+    "IMLR": "https://charts.awdevsoftware.org/#385",
+    "IPAP": "https://charts.awdevsoftware.org/#69",
+    "IPPH": "https://charts.awdevsoftware.org/#104",
+    "ISCM": "https://charts.awdevsoftware.org/#382",
+    "IDCS": "https://charts.awdevsoftware.org/#284",
+    "IBTH": "https://charts.awdevsoftware.org/#37",
+    "ISAU": "https://charts.awdevsoftware.org/#192",
+    "ISKP": "https://charts.awdevsoftware.org/#330",
+    "ITKO": "https://charts.awdevsoftware.org/#0",
+    "ITRC": "https://charts.awdevsoftware.org/#393"
 };
 
-let currentSuggestedCallsign = "";
-
-// Function to detect airline from in-game callsign input (case-insensitive)
-function detectCallsign(ingameCallsign) {
-    const lowerInput = ingameCallsign.toLowerCase();
-    for (const [key, value] of Object.entries(callsignMapping)) {
-        if (lowerInput.startsWith(key.toLowerCase())) {
-            return value;
-        }
-    }
-    return null;
-}
-
-function toTitleCase(str) {
-    return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-}
-
-// Function to show autofill prompt
-function showAutofillPrompt(suggestedCallsign) {
-    autofillPromptDiv.innerHTML = `
-        Autofill? <strong>${suggestedCallsign}</strong> 
-        <button id="autofill-yes">Yes</button> 
-        <button id="autofill-no">No</button>
-    `;
-
-    document.getElementById("autofill-yes").addEventListener("click", () => {
-        // Replace the in-game callsign part with the suggested callsign in callsign input
-        const ingameValue = ingameCallsignInput.value;
-        let newCallsign = ingameValue;
-        for (const key of Object.keys(callsignMapping)) {
-            if (ingameValue.toLowerCase().startsWith(key.toLowerCase())) {
-                newCallsign = toTitleCase(suggestedCallsign) + ingameValue.substring(key.length);
-                break;
-            }
-        }
-        callsignInput.value = newCallsign;
-        autofillPromptDiv.innerHTML = "";
-    });
-
-    document.getElementById("autofill-no").addEventListener("click", () => {
-        autofillPromptDiv.innerHTML = "";
-    });
-}
-
-// Event listener on ingame callsign input to detect airline and show prompt
-ingameCallsignInput.addEventListener("blur", () => {
-    const ingameValue = ingameCallsignInput.value.trim();
-    if (!ingameValue) {
-        autofillPromptDiv.innerHTML = "";
+// Function to update chart links with error handling
+function updateChartLinks(departureIcao, arrivalIcao) {
+    const chartResults = document.getElementById('chart-results');
+    
+    if (!departureIcao || !arrivalIcao) {
+        chartResults.innerHTML = '<p>Chart links from 24Charts will be displayed here after a flight plan is made.</p>';
         return;
     }
-    const suggested = detectCallsign(ingameValue);
-    if (suggested) {
-        currentSuggestedCallsign = suggested;
-        showAutofillPrompt(suggested);
-    } else {
-        autofillPromptDiv.innerHTML = "";
-    }
-});
-
-let flightRules = "VFR"; // Default
-
-// Handle VFR/IFR buttons
-const flightPlanTypeDiv = document.getElementById("flight-plan-type");
-
-const vfrButton = document.getElementById("vfrButton");
-const ifrButton = document.getElementById("ifrButton");
-
-function updateFlightRuleSelection(selectedRule) {
-    flightRules = selectedRule;
-    if (selectedRule === "VFR") {
-        vfrButton.classList.add("selected");
-        ifrButton.classList.remove("selected");
-    } else if (selectedRule === "IFR") {
-        ifrButton.classList.add("selected");
-        vfrButton.classList.remove("selected");
-    }
+    
+    const twentyFourChartsUrl = 'https://charts.awdevsoftware.org/';
+    
+    // Function to check if a URL is accessible
+    const checkUrlAvailability = async (url) => {
+        try {
+            const response = await fetch(url, { method: 'HEAD', mode: 'no-cors' });
+            // If we get here, the request was successful (even with CORS)
+            return true;
+        } catch (error) {
+            // If there's an error (network issue, CORS, etc.), consider it unavailable
+            return false;
+        }
+    };
+    
+    // Function to create chart link with error handling
+    const createChartLink = async (icao, type) => {
+        const url = chartLinks[icao] || twentyFourChartsUrl;
+        const isAvailable = await checkUrlAvailability(url);
+        
+        if (isAvailable) {
+            return `
+                <p>Charts for ${type} airport (${icao}): 
+                    <a href="${url}" target="_blank" class="chart-link" data-icao="${icao}">${url}</a>
+                </p>
+            `;
+        } else {
+            return `
+                <p class="chart-error">
+                    Oops! I couldn't load the chart for ${type} airport (${icao}). 
+                    <a href="${twentyFourChartsUrl}" target="_blank" class="fallback-link">Try 24Charts directly</a>
+                </p>
+            `;
+        }
+    };
+    
+    // Show loading message
+    chartResults.innerHTML = '<p class="loading-message">Loading chart links...</p>';
+    
+    // Check both links and update the UI
+    Promise.all([
+        createChartLink(departureIcao, 'departure'),
+        createChartLink(arrivalIcao, 'arrival')
+    ]).then(([departureHtml, arrivalHtml]) => {
+        chartResults.innerHTML = `
+            ${departureHtml}
+            <br>
+            ${arrivalHtml}
+            <br>
+            <p>Couldn't find your preferred chart pack? Go directly to 24charts and choose your own: 
+                <a href="${twentyFourChartsUrl}" target="_blank" class="fallback-link">${twentyFourChartsUrl}</a>
+            </p>
+            <p>Specific chart drive URLs will be added in a future update!</p>
+        `;
+    }).catch(error => {
+        console.error('Error loading chart links:', error);
+        chartResults.innerHTML = `
+            <p class="chart-error">
+                Oops! I couldn't load the chart links. Please try again later or visit 
+                <a href="${twentyFourChartsUrl}" target="_blank" class="fallback-link">24Charts</a> directly.
+            </p>
+        `;
+    });
 }
 
-// Initialize default selection
-updateFlightRuleSelection("IFR");
-
-vfrButton.addEventListener("click", () => {
-    updateFlightRuleSelection("VFR");
-});
-
-ifrButton.addEventListener("click", () => {
-    updateFlightRuleSelection("IFR");
-});
-
-form.addEventListener("submit", (e) => {
+// Form submission handler
+form.addEventListener('submit', (e) => {
     e.preventDefault();
-
-    const aircraft = document.getElementById("aircraft").value.toUpperCase();
-    let callsignInputValue = document.getElementById("callsign").value;
-    let ingameCallsignInputValue = document.getElementById("ingame-callsign").value;
-    const departure = document.getElementById("departure").value.toUpperCase();
-    const arrival = document.getElementById("arrival").value.toUpperCase();
-    const flightLevel = document.getElementById("flight-level").value.toUpperCase() || "N/A";
-    const route = document.getElementById("route").value.toUpperCase() || "DIRECT";
-
-    // Validate ICAOs
-    const departureAirport = airports.find(a => a.icao === departure);
-    const arrivalAirport = airports.find(a => a.icao === arrival);
-
+    
+    const aircraft = document.getElementById('aircraft').value.toUpperCase();
+    const callsign = document.getElementById('callsign').value;
+    const ingameCallsign = document.getElementById('ingame-callsign').value;
+    const departure = document.getElementById('departure').value.toUpperCase();
+    const arrival = document.getElementById('arrival').value.toUpperCase();
+    const flightLevel = document.getElementById('flight-level').value || 'N/A';
+    const route = document.getElementById('route').value || 'DIRECT';
+    
+    // Find the departure and arrival airports (check both icao and fullName)
+    const findAirport = (query) => {
+        // First try to find by ICAO (exact match)
+        let airport = airports.find(a => a.icao === query);
+        
+        // If not found by ICAO, try to find by fullName (case-insensitive)
+        if (!airport) {
+            const queryLower = query.toLowerCase();
+            airport = airports.find(a => a.fullName.toLowerCase() === queryLower);
+        }
+        
+        return airport;
+    };
+    
+    const departureAirport = findAirport(departure);
+    const arrivalAirport = findAirport(arrival);
+    
+    // Validate airports
     if (!departureAirport || !arrivalAirport) {
-        resultsDiv.innerHTML = `<p style="color:red;">Nuh Uh. Invalid ICAO code. Please try again.</p>`;
+        alert('Please enter valid departure and arrival airports (ICAO code or full name)');
         return;
     }
-
-    // Function to get canonical callsign capitalization from callsignMapping
-    // Function to get canonical callsign value from callsignMapping
-    function getCanonicalCallsign(input) {
-        for (const [key, value] of Object.entries(callsignMapping)) {
-            if (input.toLowerCase().startsWith(key.toLowerCase())) {
-                return value + input.substring(key.length);
-            }
-        }
-        return input;
-    }
-
-    // Function to get ingame callsign key from callsignMapping
-    function getIngameCallsign(input) {
-        for (const key of Object.keys(callsignMapping)) {
-            if (input.toLowerCase().startsWith(key.toLowerCase())) {
-                return key + input.substring(key.length);
-            }
-        }
-        return input;
-    }
- 
-    // Get canonical callsign for callsign input
-    const callsign = getCanonicalCallsign(callsignInputValue);
-    // Get ingame callsign key for ingameCallsign input
-    const ingameCallsign = getIngameCallsign(ingameCallsignInputValue);
-
-    // Build the Discord command including ingame callsign and callsign with canonical capitalization
+    
+    // Get flight rules
+    const flightRules = document.querySelector('.flight-rule-button.selected')?.textContent || 'VFR';
+    
+    // Build the Discord command with full airport names
     const discordMessage = `/createflightplan ingamecallsign:${ingameCallsign} callsign:${callsign} aircraft:${aircraft} flightrules:${flightRules} departing:${departureAirport.fullName} arriving:${arrivalAirport.fullName} flightlevel:${flightLevel} route:${route}`;
-
-    // Mark flight as planned and update route line
+    
+    // Mark flight as planned and update UI
     isFlightPlanned = true;
-    drawRouteLine(false); // Draw solid line for planned flight
+    if (typeof drawRouteLine === 'function') {
+        drawRouteLine(false); // Draw solid line for planned flight
+    }
+    
+    // Update chart links with departure and arrival ICAO codes
+    updateChartLinks(departureAirport.icao, arrivalAirport.icao);
     
     // Create formatted notes text including ingame callsign and callsign
     const formattedNotes = `${ingameCallsign}/${callsign} | ${aircraft}
@@ -453,18 +419,53 @@ generateBtn.addEventListener("click", () => {
     document.getElementById("route").value = randomRoute.map(wp => wp.id).join(" ");
 });
 
-document.getElementById("auto-fill-form").addEventListener("click", () => {
-    document.getElementById("callsign").value = "JBU1234";
-    document.getElementById("aircraft").value = "A320";
-    document.getElementById("departure").value = "IRFD";
-    document.getElementById("arrival").value = "IPPH";
-    document.getElementById("route").value = "HONDA";
-    flightRules = "VFR";
-    const flightPlanTypeDiv = document.getElementById("flight-plan-type");
-    flightPlanTypeDiv.textContent = "You Have Chosen: VFR";
-    renderWaypoints();
-    drawRouteLine(); // Added to draw the flight plan line after autofill
-});
+// Flight rule buttons functionality
+const vfrButton = document.getElementById("vfrButton");
+const ifrButton = document.getElementById("ifrButton");
+
+// Set initial selection (IFR by default)
+if (vfrButton && ifrButton) {
+    ifrButton.classList.add("selected");
+    
+    // Add click event listeners
+    vfrButton.addEventListener("click", () => {
+        vfrButton.classList.add("selected");
+        ifrButton.classList.remove("selected");
+    });
+    
+    ifrButton.addEventListener("click", () => {
+        ifrButton.classList.add("selected");
+        vfrButton.classList.remove("selected");
+    });
+}
+
+// Auto-fill form button handler
+const autoFillButton = document.getElementById("auto-fill-form");
+if (autoFillButton) {
+    autoFillButton.addEventListener("click", () => {
+        document.getElementById("callsign").value = "JBU1234";
+        document.getElementById("aircraft").value = "A320";
+        document.getElementById("departure").value = "IRFD";
+        document.getElementById("arrival").value = "IPPH";
+        document.getElementById("route").value = "HONDA";
+        
+        // Update flight rules UI
+        const vfrButton = document.getElementById("vfrButton");
+        const ifrButton = document.getElementById("ifrButton");
+        if (vfrButton && ifrButton) {
+            vfrButton.classList.add("selected");
+            ifrButton.classList.remove("selected");
+        }
+        
+        // Render waypoints and route if functions exist
+        if (typeof renderWaypoints === 'function') {
+            renderWaypoints();
+        }
+        if (typeof drawRouteLine === 'function') {
+            drawRouteLine();
+        }
+    });
+}
 
 function renderWaypoints() {
     const waypointContainer = document.getElementById("waypoint-container");
@@ -1102,9 +1103,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const clearWaypointsBtn = document.getElementById('clear-waypoints');
     if (clearWaypointsBtn) {
         clearWaypointsBtn.addEventListener('click', () => {
-            // Remove all ICAO text elements (same as ALT+W functionality)
+            // Remove all ICAO text elements and clear the visibleLabels Set
             const existingTexts = document.querySelectorAll(".icao-text");
             existingTexts.forEach(text => text.remove());
+            // Clear the visibleLabels Set to prevent waypoints from reappearing on resize
+            if (typeof visibleLabels !== 'undefined') {
+                visibleLabels.clear();
+            }
         });
     }
 });

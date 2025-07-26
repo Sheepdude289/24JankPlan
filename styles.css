@@ -1,3 +1,48 @@
+/* Reset and base styles */
+* {
+    -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+}
+
+/* Reset button and input styles for mobile */
+button, input, select, textarea {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: 0;
+    background: none;
+    border: 1px solid #a9a9a9;
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 5px 10px;
+    margin: 2px 0;
+}
+
+/* Reset button specific styles */
+button {
+    background-color: #f0f0f0;
+    border: 1px solid #a9a9a9;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 2px;
+}
+
+button:hover {
+    background-color: #e0e0e0;
+}
+
+/* Remove default focus styles on mobile */
+button:focus, input:focus, select:focus, textarea:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Prevent iOS zoom on input focus */
+@media screen and (-webkit-min-device-pixel-ratio:0) { 
+    select:focus, textarea:focus, input:focus {
+        font-size: 16px;
+    }
+}
+
 body {
     margin-top: 100px;
     display: flex;
@@ -69,6 +114,83 @@ header h1 {
 
 .header-button:hover {
     background-color: #555;
+}
+
+/* Flight rule buttons */
+.flight-rule-group {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.flight-rule-button {
+    border: 1px solid;
+    background-color: #f0f0f0;
+    cursor: pointer;
+    border-radius: 2px;
+}
+
+.flight-rule-button:hover {
+    background-color: #e0e0e0;
+}
+
+.flight-rule-button.selected {
+    background-color: #555;
+    color: black;
+}
+
+#chart-links {
+    text-align: center;
+    margin: 20px 0;
+}
+
+#chart-results {
+    text-align: center;
+    margin: 0 auto;
+    max-width: 800px;
+}
+
+#chart-results a {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+#chart-results a:hover {
+    text-decoration: underline;
+}
+
+/* Loading message */
+.loading-message {
+    color: #666;
+    margin: 10px 0;
+}
+
+/* Chart error message */
+.chart-error {
+    color: #d32f2f;
+    background-color: #ffebee;
+    padding: 10px;
+    border-radius: 4px;
+    border-left: 4px solid #d32f2f;
+    margin: 10px 0;
+}
+
+/* Fallback link style */
+.fallback-link {
+    color: #1565c0;
+    font-weight: 500;
+    text-decoration: underline;
+}
+
+.fallback-link:hover {
+    color: #0d47a1;
+    text-decoration: none;
+}
+
+/* Chart link style */
+.chart-link {
+    color: #0066cc;
+    word-break: break-all;
 }
 
 #flight-planner {
