@@ -25,7 +25,7 @@ const airports = [
 ];
 
 const waypoints = [
-    { id: "QUEENS", xPercent: 51.53, yPercent: 54.27 },
+    { id: "QUEEN", xPercent: 51.53, yPercent: 54.27 },
     { id: "LAVNO", xPercent: 54.87, yPercent: 55.77 },
     { id: "JAMSI", xPercent: 59.70, yPercent: 59.44 },
     { id: "ATPEV", xPercent: 57.20, yPercent: 54.61 },
