@@ -189,12 +189,12 @@ const resultsDiv = document.getElementById("results");
 const ingameCallsignInput = document.getElementById("ingame-callsign");
 const callsignInput = document.getElementById("callsign");
 
-// Function to get canonical callsign (kept for compatibility)
+// Function to get canonical callsign (keeping for compatibility)
 function getCanonicalCallsign(input) {
     return input; // Simply return input as is
 }
 
-// Function to get ingame callsign (kept for compatibility)
+// Function to get ingame callsign (keeping for compatibility)
 function getIngameCallsign(input) {
     return input; // Simply return input as is
 }
@@ -372,6 +372,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const autoFillButton = document.getElementById('auto-fill-form');
     if (autoFillButton) {
         autoFillButton.addEventListener('click', autoFillForm);
+    }
+    
+    // Add event listener for waypoint count input
+    const waypointCountInput = document.getElementById('waypoint-count');
+    if (waypointCountInput) {
+        let lastValue = parseInt(waypointCountInput.value) || 1;
+        
+        waypointCountInput.addEventListener('change', (e) => {
+            const newValue = parseInt(e.target.value) || 1;
+            
+            // Only show modal when increasing to exactly 5
+            if (newValue === 5 && newValue > lastValue) {
+                showModal("Warning: Using more than 5 waypoints may result in less efficient routes. The route might appear wavy or take unnecessary detours. Consider using fewer waypoints for more direct routes.");
+            }
+            
+            // Update the last value for the next comparison
+            lastValue = newValue;
+        });
     }
 
     // Initialize chart buttons
@@ -833,10 +851,13 @@ function drawRouteLine(dotted = true) {
     const points = [];
 
     ids.forEach(id => {
-        // Find waypoint or airport by id
+        // Find waypoint, airport, or VOR by id
         let wp = waypoints.find(w => w.id === id);
         if (!wp) {
             wp = mapAirports.find(a => a.id === id);
+        }
+        if (!wp) {
+            wp = vors.find(v => v.id === id);
         }
         if (wp) {
             // Convert xPercent/yPercent to pixel coordinates
@@ -990,6 +1011,9 @@ function aStar(startId, goalId) {
     const openSet = new Set([startId]);
     const cameFrom = {};
 
+    // Get all airport IDs to exclude them as intermediate waypoints
+    const airportIds = new Set(mapAirports.map(ap => ap.id));
+
     const gScore = {};
     const fScore = {};
 
@@ -1015,10 +1039,10 @@ function aStar(startId, goalId) {
         if (current === goalId) {
             // Reconstruct path
             const path = [];
-            let temp = current;
-            while (temp) {
-                path.unshift(temp);
-                temp = cameFrom[temp];
+            let curr = current;
+            while (curr) {
+                path.unshift(curr);
+                curr = cameFrom[curr];
             }
             return path;
         }
@@ -1027,6 +1051,11 @@ function aStar(startId, goalId) {
 
         const currentNode = graphNodes[current];
         currentNode.neighbors.forEach(neighbor => {
+            // Skip if this is an airport (except for start and goal)
+            if (neighbor.id !== startId && neighbor.id !== goalId && airportIds.has(neighbor.id)) {
+                return;
+            }
+
             const tentativeG = gScore[current] + neighbor.cost;
             if (tentativeG < gScore[neighbor.id]) {
                 cameFrom[neighbor.id] = current;
@@ -1068,8 +1097,9 @@ generateBtn.addEventListener("click", () => {
         return;
     }
 
-    // Remove departure and arrival from intermediate waypoints
-    let intermediateWaypoints = path.slice(1, -1);
+    // Remove departure, arrival, and any other airports from intermediate waypoints
+    const airportIds = new Set([...mapAirports.map(ap => ap.id), departure, arrival]);
+    let intermediateWaypoints = path.filter(id => !airportIds.has(id));
 
     // Adjust intermediate waypoints to match waypointCount
     if (intermediateWaypoints.length > waypointCount) {
@@ -1083,32 +1113,64 @@ generateBtn.addEventListener("click", () => {
     } else if (intermediateWaypoints.length < waypointCount) {
         // Add additional waypoints near the path to reach waypointCount
         const needed = waypointCount - intermediateWaypoints.length;
+        // Filter out all airports from candidates, only allow waypoints and VORs
         const candidates = Object.keys(graphNodes).filter(id => 
-            id !== departure && id !== arrival && !intermediateWaypoints.includes(id)
+            id !== departure && 
+            id !== arrival && 
+            !intermediateWaypoints.includes(id) &&
+            !airportIds.has(id) // Exclude airports
         );
+
+        // If we don't have enough candidates, just return what we have
+        if (candidates.length === 0) {
+            console.log("No valid non-airport waypoints available to add");
+            return;
+        }
 
         // Simple heuristic: add closest candidates to the path nodes
         const added = [];
         for (let i = 0; i < needed && candidates.length > 0; i++) {
             let bestCandidate = null;
             let bestDist = Infinity;
+            
+            // Calculate distance to path for each candidate
             candidates.forEach(id => {
                 const node = graphNodes[id];
-                // Distance to closest node in path
-                const distToPath = Math.min(...path.map(pId => euclideanDistance(node, graphNodes[pId])));
-                if (distToPath < bestDist) {
-                    bestDist = distToPath;
+                let minDistToPath = Infinity;
+                
+                // Calculate minimum distance to any point in the current path
+                const allPoints = [departure, ...intermediateWaypoints, arrival];
+                for (let j = 0; j < allPoints.length - 1; j++) {
+                    const start = graphNodes[allPoints[j]];
+                    const end = graphNodes[allPoints[j + 1]];
+                    if (start && end) {
+                        const dist = distanceToLine(
+                            node.xPercent, node.yPercent,
+                            start.xPercent, start.yPercent,
+                            end.xPercent, end.yPercent
+                        );
+                        minDistToPath = Math.min(minDistToPath, dist);
+                    }
+                }
+                
+                if (minDistToPath < bestDist) {
+                    bestDist = minDistToPath;
                     bestCandidate = id;
                 }
             });
+            
             if (bestCandidate) {
                 added.push(bestCandidate);
+                // Add to intermediate waypoints so it's considered in next iteration
+                intermediateWaypoints.push(bestCandidate);
                 // Remove from candidates
                 const index = candidates.indexOf(bestCandidate);
                 if (index > -1) candidates.splice(index, 1);
+            } else {
+                // If no good candidate found, break the loop
+                break;
             }
         }
-        intermediateWaypoints = intermediateWaypoints.concat(added);
     }
 
     // Sort intermediate waypoints by distance from departure to ensure realistic order
@@ -1382,24 +1444,39 @@ document.addEventListener('DOMContentLoaded', () => {
 // Function to show roadmap modal
 function showRoadmapModal() {
     const content = `
-        <h2>Site Roadmap</h2>
-        <h3>New Updates for v1.1.0</h3>
-        <ul>
-            <li>Flight plan route generation</li>
-            <li>Added specific chart url's for 24Charts</li>
-            <li>Added 24QuickCharts to list of providers</li>
-            <li>Waypoint text toggling and clearing fix</li>
-            <li>Added Roadmap button</li>
-            <li>Fixed Reset Flight Plan Button</li>
-            <li>Corrected typo in "Reset Flight Plan"</li>
-        </ul>
-        <h3>Planned Updates v1.2.0</h3>
-        <ul>
-            <li>Partial SID/STAR integration for major airports</li>
-            <li>Adding more chart providers</li>
-            <li>Adding direct chart URL's</li>
-            <li>Adding random flight generator</li>
-        </ul>
+        <div style="max-height: 60vh; overflow-y: auto; padding-right: 15px; margin-right: -15px;">
+            <h2>Site Roadmap</h2>
+            <h3>Updates for v1.1.0</h3>
+            <ul>
+                <li>Flight plan route generation</li>
+                <li>Added specific chart url's for 24Charts</li>
+                <li>Added 24QuickCharts to list of providers</li>
+                <li>Waypoint text toggling and clearing fix</li>
+                <li>Added Roadmap button</li>
+                <li>Fixed Reset Flight Plan Button</li>
+                <li>Corrected typo in "Reset Flight Plan"</li>
+                <li>Fixed route generator using airports as waypoints</li>
+            </ul>
+            <h3>Bug fixes for v1.1.1</h3>
+            <ul>
+                <li>Fixed route generator using airports as waypoints</li>
+                <li>Fixed VOR's not appearing on route line</li>
+                <li>Added warning modal for routes with more than 5 waypoints</li>
+            </ul>
+            <h3>Planned Updates v1.2.0</h3>
+            <ul>
+                <li>Partial SID/STAR integration for major airports</li>
+                <li>Adding more chart providers</li>
+                <li>Adding direct chart URL's</li>
+                <li>Adding random flight generator</li>
+            </ul>
+            <h3>Planned Updates v1.3.0</h3>
+            <ul>
+                <li>Multi-leg flight planning</li>
+                <li>Full SID/STAR integration for all airports</li>
+                <li>Modern-UI toggle</li>
+            </ul>
+        </div>
     `;
     showModal(content);
 }
