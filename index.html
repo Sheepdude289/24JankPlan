@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <meta name="description" content="Sheep's Janky Flight Planner for Roblox PTFS">
+    <link rel="icon" href="24.ico" type="image/x-icon">
+    <meta name="description" content="24JankPlan, a PTFS flight planner (very janky).">
     <meta name="author" content="SheepShoop">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <title>Sheep's Janky Flight Planner</title>
+    <title>24JankPlan</title>
 </head>
 <body>
     
     <header>
-        <h1>Sheeps Janky Flight Planner</h1>
+        <h1>24JankPlan</h1>
         <div class="header-buttons">
             <a href="https://github.com/sheepdude289" target="_blank" class="header-button" aria-label="Github">
                 <i class="fa-brands fa-github"></i>
-            </a>
+            </a>    
             <a href="#" class="header-button" aria-label="Sheep's Janky Chart Viewer">
                 <i class="fa-regular fa-map"></i>
             </a>
@@ -29,7 +29,7 @@
 
     <main>
         <section id="flight-planner">
-            <h2>The Sheep's Very Janky Flight Planner</h2>
+            <h2>The Very Janky Flight Planner</h2>
 <form id="flight-form">
 
                 <div id="flight-plan-type" style="margin-top: 5px;"></div>
@@ -80,10 +80,14 @@
                     <span style="display: none;">Or</span>
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <button type="button" id="generate-flight-plan">Generate One For Me</button>
-                        <span style="white-space: nowrap;">
+                        <!-- 
+                        <span style="white-space: nowrap; display: none;">
                             Using 
                             <input type="number" id="waypoint-count" min="1" max="50" value="3" style="width: 35px; text-align: center;"> 
                             waypoints
+                        </span>
+                        -->
+                        <input type="number" id="waypoint-count" min="1" max="50" value="3" style="display: none;">
                     </div>
                 </div>
 

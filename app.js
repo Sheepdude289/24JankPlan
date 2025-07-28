@@ -157,6 +157,8 @@ const vors = [
     { id: "DEL", xPercent: 75.20, yPercent: 50.74 },
 ]
 
+// yo cuh if dis airport y value within 30-40 percent make it use 3 waypoints pls and otherwise 2 BI- 
+
 const mapAirports = [
     { id: "IRFD", xPercent: 50.33, yPercent: 57.59 }, // Greater Rockford
     { id: "IPPH", xPercent: 66.33, yPercent: 27.25 }, // Perth Intl.
@@ -1072,11 +1074,44 @@ function aStar(startId, goalId) {
     return [];
 }
 
-// Update route generation to use A* pathfinding with waypoint count adjustment
+// Function to calculate the number of waypoints based on airport proximity
+function calculateWaypointCount(departure, arrival) {
+    const departureAirport = mapAirports.find(ap => ap.id === departure);
+    const arrivalAirport = mapAirports.find(ap => ap.id === arrival);
+    
+    if (!departureAirport || !arrivalAirport) {
+        return 3; // Default value if airports not found
+    }
+    
+    // Calculate the average difference in x and y percentages
+    const xDiff = Math.abs(departureAirport.xPercent - arrivalAirport.xPercent);
+    const yDiff = Math.abs(departureAirport.yPercent - arrivalAirport.yPercent);
+    const avgDiff = (xDiff + yDiff) / 2;
+    
+    // Determine number of waypoints based on the average difference
+    if (avgDiff < 5) {
+        return 1; // Very close airports - direct route
+    } else if (avgDiff < 15) {
+        return 2; // Moderately close airports - 2 waypoints
+    } else if (avgDiff < 25) {
+        return 3; // Medium distance - 3 waypoints
+    } else if (avgDiff < 35) {
+        return 4; // Long distance - 4 waypoints
+    } else {
+        return 5; // Very long distance - 5 waypoints
+    }
+}
+
+// Update route generation to use A* pathfinding with automatic waypoint count
 generateBtn.addEventListener("click", () => {
     const departure = document.getElementById("departure").value.trim().toUpperCase();
     const arrival = document.getElementById("arrival").value.trim().toUpperCase();
-    const waypointCount = parseInt(document.getElementById("waypoint-count").value) || 3;
+    
+    // Calculate waypoint count based on airport proximity
+    const waypointCount = calculateWaypointCount(departure, arrival);
+    
+    // Update the UI to show the calculated waypoint count
+    document.getElementById("waypoint-count").value = waypointCount;
 
     if (!departure || !arrival) {
         alert("Please enter both departure and arrival airports first");
@@ -1463,6 +1498,9 @@ function showRoadmapModal() {
                 <li>Fixed VOR's not appearing on route line</li>
                 <li>Added warning modal for routes with more than 5 waypoints</li>
             </ul>
+
+            <hr>
+
             <h3>Planned Updates v1.2.0</h3>
             <ul>
                 <li>Partial SID/STAR integration for major airports</li>
