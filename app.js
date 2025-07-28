@@ -1,3 +1,4 @@
+
 const airports = [
     { icao: "IRFD", fullName: "Greater Rockford" },
     { icao: "IPPH", fullName: "Perth" },
@@ -198,6 +199,14 @@ function getIngameCallsign(input) {
     return input; // Simply return input as is
 }
 
+// Chart type constants
+const CHART_TYPES = {
+    AERONAV_CHARTS: 'aeronavcharts',
+    CHARTS_24: '24charts',
+    QUICK_CHARTS: 'quickcharts',
+    DIRECT_URLS: 'direct-urls',
+};
+
 // Chart links data
 const chartLinks = {
     "IGAR": "https://charts.awdevsoftware.org/#375",
@@ -224,11 +233,11 @@ const chartLinks = {
 };
 
 // Function to update chart links with error handling
-function updateChartLinks(departureIcao, arrivalIcao) {
+function updateChartLinks(departureIcao, arrivalIcao, chartType = CHART_TYPES.CHARTS_24) {
     const chartResults = document.getElementById('chart-results');
     
     if (!departureIcao || !arrivalIcao) {
-        chartResults.innerHTML = '<p>Chart links from 24Charts will be displayed here after a flight plan is made.</p>';
+        chartResults.innerHTML = '<p>Chart links will be displayed here after a flight plan is made.</p>';
         return;
     }
     
@@ -267,34 +276,146 @@ function updateChartLinks(departureIcao, arrivalIcao) {
         }
     };
     
-    // Show loading message
-    chartResults.innerHTML = '<p class="loading-message">Loading chart links...</p>';
     
-    // Check both links and update the UI
-    Promise.all([
-        createChartLink(departureIcao, 'departure'),
-        createChartLink(arrivalIcao, 'arrival')
-    ]).then(([departureHtml, arrivalHtml]) => {
-        chartResults.innerHTML = `
-            ${departureHtml}
-            <br>
-            ${arrivalHtml}
-            <br>
-            <p>Couldn't find your preferred chart pack? Go directly to 24charts and choose your own: 
-                <a href="${twentyFourChartsUrl}" target="_blank" class="fallback-link">${twentyFourChartsUrl}</a>
-            </p>
-            <p>Specific chart drive URLs will be added in a future update!</p>
-        `;
-    }).catch(error => {
-        console.error('Error loading chart links:', error);
-        chartResults.innerHTML = `
-            <p class="chart-error">
-                Oops! I couldn't load the chart links. Please try again later or visit 
-                <a href="${twentyFourChartsUrl}" target="_blank" class="fallback-link">24Charts</a> directly.
-            </p>
-        `;
-    });
+    // Handle different chart types
+    switch(chartType) {
+        case CHART_TYPES.CHARTS_24:
+            // Show loading message
+            chartResults.innerHTML = '<p class="loading-message">Fetching chart links! Standby...</p>';
+
+            // Check both links and update the UI for 24Charts
+            Promise.all([
+                createChartLink(departureIcao, 'departure'),
+                createChartLink(arrivalIcao, 'arrival')
+            ]).then(([departureHtml, arrivalHtml]) => {
+                chartResults.innerHTML = `
+                    ${departureHtml}
+                    <br>
+                    ${arrivalHtml}
+                    <br>
+                    <p>Couldn't find your preferred chart pack? Go directly to 24charts and choose your own: 
+                        <a href="${twentyFourChartsUrl}" target="_blank" class="fallback-link">${twentyFourChartsUrl}</a>
+                    </p>
+                `;
+            }).catch(error => {
+                console.error('Error loading chart links:', error);
+                showChartError(twentyFourChartsUrl);
+            });
+            break;
+            
+        case CHART_TYPES.QUICK_CHARTS:
+            // Placeholder for QuickCharts
+            chartResults.innerHTML = `
+                <p>For 24QuickCharts, please visit: <a href="https://atc24resources.github.io/24QuickCharts/" target="_blank">https://atc24resources.github.io/24QuickCharts/</a></p>
+                <br>
+                <p>Once there, please select the chart packs you want to use for ${departureIcao} and ${arrivalIcao}.</p>
+            `;
+            break;
+            
+        case CHART_TYPES.DIRECT_URLS:
+            // Placeholder for Direct URLs
+            chartResults.innerHTML = `
+                <p>Specific Chart URL's will be added in v1.2.0!</p>
+            `;
+            break;
+
+        case CHART_TYPES.AERONAV_CHARTS:
+            // Placeholder for Aeronav Charts
+            chartResults.innerHTML = `
+                <p>Charts from Aeronav will be added soon!</p>
+            `;
+            break;
+    }
 }
+
+// Helper function to show chart error
+function showChartError(twentyFourChartsUrl) {
+    const chartResults = document.getElementById('chart-results');
+    chartResults.innerHTML = `
+        <p class="chart-error">
+            Oops! I couldn't load the chart links. Please try again later or visit 
+            <a href="${twentyFourChartsUrl}" target="_blank" class="fallback-link">24Charts</a> directly.
+        </p>
+    `;
+}
+
+// Auto-fill form function
+function autoFillForm() {
+    // Set form values
+    document.getElementById('ingame-callsign').value = 'JetBloo 1234';
+    document.getElementById('callsign').value = 'JetBlue 1234';
+    document.getElementById('aircraft').value = 'A320';
+    document.getElementById('departure').value = 'IRFD';
+    document.getElementById('arrival').value = 'ITKO';
+    document.getElementById('flight-level').value = '060';
+    document.getElementById('route').value = 'HONDA';
+    
+    // Set VFR as default
+    const vfrButton = document.getElementById('vfrButton');
+    const ifrButton = document.getElementById('ifrButton');
+    if (vfrButton && ifrButton) {
+        vfrButton.classList.remove('selected');
+        ifrButton.classList.add('selected');
+    }
+    
+    // Trigger any necessary updates
+    if (typeof renderWaypoints === 'function') {
+        renderWaypoints();
+    }
+    if (typeof drawRouteLine === 'function') {
+        drawRouteLine();
+    }
+}
+
+// Add event listener for auto-fill button
+document.addEventListener('DOMContentLoaded', () => {
+    const autoFillButton = document.getElementById('auto-fill-form');
+    if (autoFillButton) {
+        autoFillButton.addEventListener('click', autoFillForm);
+    }
+
+    // Initialize chart buttons
+    const chartButtons = document.querySelectorAll('.chart-button');
+    let lastDepartureIcao = null;
+    let lastArrivalIcao = null;
+
+    // Add click handlers for chart type buttons
+    chartButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Update active state
+            chartButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            // Update chart content based on the selected type
+            const chartType = button.id.replace('btn-', '');
+            if (lastDepartureIcao && lastArrivalIcao) {
+                updateChartLinks(lastDepartureIcao, lastArrivalIcao, chartType);
+            }
+        });
+    });
+    
+    // Store the original updateChartLinks function
+    const originalUpdateChartLinks = window.updateChartLinks;
+    
+    // Override the updateChartLinks function to store the last used ICAOs
+    window.updateChartLinks = (departureIcao, arrivalIcao, chartType) => {
+        if (departureIcao && arrivalIcao) {
+            lastDepartureIcao = departureIcao;
+            lastArrivalIcao = arrivalIcao;
+            
+            // Get the active chart type
+            const activeButton = document.querySelector('.chart-button.active');
+            const activeChartType = activeButton ? activeButton.id.replace('btn-', '') : CHART_TYPES.CHARTS_24;
+            
+            // Call the original function with the active chart type
+            originalUpdateChartLinks(departureIcao, arrivalIcao, activeChartType);
+        } else {
+            // If no ICAOs provided, just update with the default message
+            const chartResults = document.getElementById('chart-results');
+            chartResults.innerHTML = '<p>Chart links will be displayed here after a flight plan is made.</p>';
+        }
+    };
+});
 
 // Form submission handler
 form.addEventListener('submit', (e) => {
@@ -347,12 +468,12 @@ form.addEventListener('submit', (e) => {
     updateChartLinks(departureAirport.icao, arrivalAirport.icao);
     
     // Create formatted notes text including ingame callsign and callsign
-    const formattedNotes = `${ingameCallsign}/${callsign} | ${aircraft}
+    const formattedNotes = `${callsign}/${ingameCallsign} | ${aircraft}
 -------------------------
 
 FLPN TYPE: ${flightRules}
 
-ROUTE: ${departure} → ${route} → ${arrival}
+ROUTE: ${departure} / ${route} / ${arrival}
 `;
 
     // Display results with copy buttons including ingame callsign
@@ -362,7 +483,7 @@ ROUTE: ${departure} → ${route} → ${arrival}
         <p><strong>Aircraft:</strong> ${aircraft}</p>
         <p><strong>Flight Rules:</strong> ${flightRules}</p>
         <p><strong>Flight Level:</strong> ${flightLevel}</p>
-        <p><strong>Route:</strong> ${departure} → ${route} → ${arrival}</p>
+        <p><strong>Route:</strong> ${departure} / ${route} / ${arrival}</p>
         <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
             <button id="copy-notes">Copy formatted for notes</button>
             <span id="copy-side-text-notes" style="font-size: 0.9em; color: green;"></span>
@@ -829,76 +950,182 @@ function distance(x1, y1, x2, y2) {
     return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 }
 
-// Function to generate random waypoints
-function generateRouteWaypoints(departureIcao, arrivalIcao, count) {
-    // Filter out departure and arrival airports from waypoints
-    const availableWaypoints = waypoints.filter(wp => 
-        wp.id !== departureIcao && wp.id !== arrivalIcao
-    );
-    
-    // If no waypoints available, return empty array
-    if (availableWaypoints.length === 0) {
-        console.log("No waypoints available");
-        return [];
-    }
-    
-    // Select random waypoints
-    const selectedWaypoints = [];
-    const maxAttempts = 100;
-    let attempts = 0;
-    
-    while (selectedWaypoints.length < count && attempts < maxAttempts) {
-        attempts++;
-        const randomIndex = Math.floor(Math.random() * availableWaypoints.length);
-        const waypoint = availableWaypoints[randomIndex];
-        
-        // Make sure we don't add duplicates
-        if (!selectedWaypoints.some(wp => wp.id === waypoint.id)) {
-            selectedWaypoints.push(waypoint);
-        }
-    }
-    
-    // Return just the waypoint IDs
-    return selectedWaypoints.map(wp => wp.id);
+// Helper function to calculate Euclidean distance between two points
+function euclideanDistance(p1, p2) {
+    const dx = p1.xPercent - p2.xPercent;
+    const dy = p1.yPercent - p2.yPercent;
+    return Math.sqrt(dx * dx + dy * dy);
 }
 
-// Update route generation to use the new function
+// Build graph nodes from waypoints, airports, and vors
+const graphNodes = {};
+
+// Add all nodes to graphNodes by id
+[...waypoints, ...mapAirports, ...vors].forEach(node => {
+    graphNodes[node.id] = {
+        ...node,
+        neighbors: []
+    };
+});
+
+// Connect nodes with edges based on distance threshold
+const DISTANCE_THRESHOLD = 20; // Adjust threshold as needed
+
+Object.values(graphNodes).forEach(node => {
+    Object.values(graphNodes).forEach(otherNode => {
+        if (node.id !== otherNode.id) {
+            const dist = euclideanDistance(node, otherNode);
+            if (dist <= DISTANCE_THRESHOLD) {
+                node.neighbors.push({
+                    id: otherNode.id,
+                    cost: dist
+                });
+            }
+        }
+    });
+});
+
+// A* pathfinding algorithm implementation
+function aStar(startId, goalId) {
+    const openSet = new Set([startId]);
+    const cameFrom = {};
+
+    const gScore = {};
+    const fScore = {};
+
+    Object.keys(graphNodes).forEach(id => {
+        gScore[id] = Infinity;
+        fScore[id] = Infinity;
+    });
+
+    gScore[startId] = 0;
+    fScore[startId] = euclideanDistance(graphNodes[startId], graphNodes[goalId]);
+
+    while (openSet.size > 0) {
+        // Get node in openSet with lowest fScore
+        let current = null;
+        let lowestF = Infinity;
+        openSet.forEach(id => {
+            if (fScore[id] < lowestF) {
+                lowestF = fScore[id];
+                current = id;
+            }
+        });
+
+        if (current === goalId) {
+            // Reconstruct path
+            const path = [];
+            let temp = current;
+            while (temp) {
+                path.unshift(temp);
+                temp = cameFrom[temp];
+            }
+            return path;
+        }
+
+        openSet.delete(current);
+
+        const currentNode = graphNodes[current];
+        currentNode.neighbors.forEach(neighbor => {
+            const tentativeG = gScore[current] + neighbor.cost;
+            if (tentativeG < gScore[neighbor.id]) {
+                cameFrom[neighbor.id] = current;
+                gScore[neighbor.id] = tentativeG;
+                fScore[neighbor.id] = tentativeG + euclideanDistance(graphNodes[neighbor.id], graphNodes[goalId]);
+                if (!openSet.has(neighbor.id)) {
+                    openSet.add(neighbor.id);
+                }
+            }
+        });
+    }
+
+    // No path found
+    return [];
+}
+
+// Update route generation to use A* pathfinding with waypoint count adjustment
 generateBtn.addEventListener("click", () => {
-    const waypointCount = parseInt(document.getElementById("waypoint-count").value) || 3;
     const departure = document.getElementById("departure").value.trim().toUpperCase();
     const arrival = document.getElementById("arrival").value.trim().toUpperCase();
-    
-    // Validate we have both departure and arrival
+    const waypointCount = parseInt(document.getElementById("waypoint-count").value) || 3;
+
     if (!departure || !arrival) {
         alert("Please enter both departure and arrival airports first");
         return;
     }
-    
-    try {
-        // Try to generate a route with waypoints along the path
-        const routeWaypoints = generateRouteWaypoints(departure, arrival, waypointCount);
-        
-        // Fallback to random waypoints if we couldn't find enough
-        if (routeWaypoints.length === 0) {
-            const randomWaypoints = [];
-            for (let i = 0; i < waypointCount; i++) {
-                randomWaypoints.push(waypoints[Math.floor(Math.random() * waypoints.length)].id);
-            }
-            document.getElementById("route").value = randomWaypoints.join(" ");
-        } else {
-            document.getElementById("route").value = routeWaypoints.join(" ");
-        }
-        
-        // Reset flight planned status and redraw the route line
-        isFlightPlanned = false;
-        drawRouteLine(true);
-        
-        // Trigger input event to update the route display
-        document.getElementById("route").dispatchEvent(new Event('input'));
-    } catch (error) {
-        console.error("Error generating route:", error);
-        alert("Error generating route. Please try again.");
+
+    // Check if departure and arrival exist in graph
+    if (!graphNodes[departure] || !graphNodes[arrival]) {
+        alert("Invalid departure or arrival airport");
+        return;
     }
+
+    // Find path using A*
+    let path = aStar(departure, arrival);
+
+    if (path.length === 0) {
+        alert("No route found between the selected airports");
+        return;
+    }
+
+    // Remove departure and arrival from intermediate waypoints
+    let intermediateWaypoints = path.slice(1, -1);
+
+    // Adjust intermediate waypoints to match waypointCount
+    if (intermediateWaypoints.length > waypointCount) {
+        // Prune waypoints evenly
+        const step = intermediateWaypoints.length / waypointCount;
+        const pruned = [];
+        for (let i = 0; i < waypointCount; i++) {
+            pruned.push(intermediateWaypoints[Math.floor(i * step)]);
+        }
+        intermediateWaypoints = pruned;
+    } else if (intermediateWaypoints.length < waypointCount) {
+        // Add additional waypoints near the path to reach waypointCount
+        const needed = waypointCount - intermediateWaypoints.length;
+        const candidates = Object.keys(graphNodes).filter(id => 
+            id !== departure && id !== arrival && !intermediateWaypoints.includes(id)
+        );
+
+        // Simple heuristic: add closest candidates to the path nodes
+        const added = [];
+        for (let i = 0; i < needed && candidates.length > 0; i++) {
+            let bestCandidate = null;
+            let bestDist = Infinity;
+            candidates.forEach(id => {
+                const node = graphNodes[id];
+                // Distance to closest node in path
+                const distToPath = Math.min(...path.map(pId => euclideanDistance(node, graphNodes[pId])));
+                if (distToPath < bestDist) {
+                    bestDist = distToPath;
+                    bestCandidate = id;
+                }
+            });
+            if (bestCandidate) {
+                added.push(bestCandidate);
+                // Remove from candidates
+                const index = candidates.indexOf(bestCandidate);
+                if (index > -1) candidates.splice(index, 1);
+            }
+        }
+        intermediateWaypoints = intermediateWaypoints.concat(added);
+    }
+
+    // Sort intermediate waypoints by distance from departure to ensure realistic order
+    const departureNode = graphNodes[departure];
+    intermediateWaypoints.sort((a, b) => {
+        const distA = euclideanDistance(graphNodes[a], departureNode);
+        const distB = euclideanDistance(graphNodes[b], departureNode);
+        return distA - distB;
+    });
+
+    document.getElementById("route").value = intermediateWaypoints.join(" ");
+
+    isFlightPlanned = false;
+    drawRouteLine(true);
+
+    // Trigger input event to update the route display
+    document.getElementById("route").dispatchEvent(new Event('input'));
 });
 
 // Initial render of waypoints on page load
@@ -925,17 +1152,29 @@ document.getElementById("reset-form").addEventListener("click", (e) => {
     // Show confirmation modal
     showModal("Are you sure you want to reset the flight plan? This will clear all fields and reset the map.", () => {
         // Reset the form
-        document.getElementById("flight-form").reset();
+        const flightForm = document.getElementById("flight-form");
+        if (flightForm) {
+            flightForm.reset();
+        }
         
         // Clear specific fields that might not be reset by the form reset
-        document.getElementById("flight-plan-type").textContent = "";
-        document.getElementById("autofill-prompt").textContent = "";
+        const flightPlanType = document.getElementById("flight-plan-type");
+        if (flightPlanType) {
+            flightPlanType.textContent = "";
+        }
+        const autofillPrompt = document.getElementById("autofill-prompt");
+        if (autofillPrompt) {
+            autofillPrompt.textContent = "";
+        }
         
         // Reset the results display
-        document.getElementById("results").innerHTML = `
-            <p style="text-align: center;">Your flight plan will be displayed here after you submit it.</p>
-            <p>Make sure you have entered <span style="font-weight: bold;">valid callsigns</span>. If not, you could get in trouble if you copy paste!</p>
-        `;
+        const resultsDiv = document.getElementById("results");
+        if (resultsDiv) {
+            resultsDiv.innerHTML = `
+                <p style="text-align: center;">Your flight plan will be displayed here after you submit it.</p>
+                <p>Make sure you have entered <span style="font-weight: bold;">valid callsigns</span>. If not, you could get in trouble if you copy paste!</p>
+            `;
+        }
         
         // Clear only user-added elements (route lines and waypoint texts)
         const waypointTexts = document.querySelectorAll(".icao-text");
@@ -947,16 +1186,29 @@ document.getElementById("reset-form").addEventListener("click", (e) => {
             svg.innerHTML = '';
         }
         
+        // Clear currentPolyline variable
+        currentPolyline = null;
+        
+        // Explicitly clear route, departure, and arrival inputs
+        const routeInput = document.getElementById("route");
+        if (routeInput) {
+            routeInput.value = "";
+        }
+        const departureInput = document.getElementById("departure");
+        if (departureInput) {
+            departureInput.value = "";
+        }
+        const arrivalInput = document.getElementById("arrival");
+        if (arrivalInput) {
+            arrivalInput.value = "";
+        }
+        
         // Re-render the waypoints to restore them
         renderWaypoints();
         
         // Reset flight plan state
         flightRules = "";
         isFlightPlanned = false;
-        
-        // Clear any waypoint texts
-        const existingTexts = document.querySelectorAll(".icao-text");
-        existingTexts.forEach(text => text.remove());
         
         // Redraw the route line as dotted
         drawRouteLine(true);
@@ -992,12 +1244,16 @@ function showModal(message, onConfirm = null) {
     modal.style.textAlign = 'center';
     
     // Add message with line break if it contains 'Please use', otherwise just use the message as is
-    const messageElement = document.createElement('p');
-    if (message.includes('Please use')) {
+    const messageElement = document.createElement('div');
+    if (typeof message === 'string' && message.includes('Please use')) {
         const [firstLine, secondLine] = message.split(' Please use');
         messageElement.innerHTML = `${firstLine}<br>Please use${secondLine}`;
+    } else if (typeof message === 'string') {
+        messageElement.innerHTML = message;
+    } else if (message instanceof HTMLElement) {
+        messageElement.appendChild(message);
     } else {
-        messageElement.textContent = message;
+        messageElement.textContent = String(message);
     }
     messageElement.style.margin = '0 0 15px 0';
     
@@ -1010,7 +1266,7 @@ function showModal(message, onConfirm = null) {
     
     // Add close button (Cancel/Close)
     const closeButton = document.createElement('button');
-    closeButton.textContent = onConfirm ? 'Cancel' : 'Close';
+    closeButton.textContent = onConfirm ? 'Cancel' : 'OK';
     closeButton.style.margin = '0 5px';
     closeButton.style.cursor = 'pointer';
     
@@ -1095,7 +1351,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (chartViewerBtn) {
         chartViewerBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            showModal("Sheep's Janky Chart Viewer is still in development! Please use 24Charts linked at the bottom for your convenience.");
+            showModal("Sheep's Janky Chart Viewer is still in development! Please use our chart providers linked at the bottom for your convenience.");
+        });
+    }
+
+    // Add click handler for roadmap button
+    const roadmapBtn = document.querySelector('a[aria-label="Roadmap"]');
+    if (roadmapBtn) {
+        roadmapBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            showRoadmapModal();
         });
     }
     
@@ -1113,3 +1378,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// Function to show roadmap modal
+function showRoadmapModal() {
+    const content = `
+        <h2>Site Roadmap</h2>
+        <h3>New Updates for v1.1.0</h3>
+        <ul>
+            <li>Flight plan route generation</li>
+            <li>Added specific chart url's for 24Charts</li>
+            <li>Added 24QuickCharts to list of providers</li>
+            <li>Waypoint text toggling and clearing fix</li>
+            <li>Added Roadmap button</li>
+            <li>Fixed Reset Flight Plan Button</li>
+            <li>Corrected typo in "Reset Flight Plan"</li>
+        </ul>
+        <h3>Planned Updates v1.2.0</h3>
+        <ul>
+            <li>Partial SID/STAR integration for major airports</li>
+            <li>Adding more chart providers</li>
+            <li>Adding direct chart URL's</li>
+            <li>Adding random flight generator</li>
+        </ul>
+    `;
+    showModal(content);
+}

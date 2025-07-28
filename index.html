@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <meta name="description" content="Sheep's Janky Flight Planner for Roblox PTFS">
-    <meta name="keywords" content="Roblox, PTFS, Flight Planner, Janky Flight Planner, VFR, IFR, Flight Plan, Aviation">
     <meta name="author" content="SheepShoop">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -22,12 +21,15 @@
             <a href="#" class="header-button" aria-label="Sheep's Janky Chart Viewer">
                 <i class="fa-regular fa-map"></i>
             </a>
+            <a href="#" class="header-button" aria-label=Roadmap>
+                <i class="fa-solid fa-road"></i>
+            </a>
         </div>
     </header>
 
     <main>
         <section id="flight-planner">
-            <h2>The Very Janky Flight Planner</h2>
+            <h2>The Sheep's Very Janky Flight Planner</h2>
 <form id="flight-form">
 
                 <div id="flight-plan-type" style="margin-top: 5px;"></div>
@@ -76,7 +78,7 @@
                     </div>
 
                     <span style="display: none;">Or</span>
-                    <div style="display: flex; align-items: center; gap: 8px;  display: none;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
                         <button type="button" id="generate-flight-plan">Generate One For Me</button>
                         <span style="white-space: nowrap;">
                             Using 
@@ -89,8 +91,8 @@
                 <br>
 
                 <button type="submit">Plan Flight</button>
-                <button type="button" id="reset-form" style="margin-left: 10px;">Reset Fligh Plan</button>
-                <button type="button" id="auto-fill-form" style="background-color: blue; margin-left: 10px; display: none;">Auto Fill Form</button>
+                <button type="button" id="reset-form" style="margin-left: 10px;">Reset Flight Plan</button>
+                <button type="button" id="auto-fill-form" style="background-color: #4a90e2; color: white; margin-left: 10px; display: none;">Auto Fill Form</button>
             </form>
         </section>
 
@@ -117,8 +119,14 @@
 
         <div id="chart-links">
             <h2>Chart Links</h2>
+            <div class="chart-buttons">
+                <button style="display: none;" id="btn-aeronavcharts" class="chart-button active">Aeronav Charts</button>
+                <button id="btn-24charts" class="chart-button">24Charts</button>
+                <button id="btn-quickcharts" class="chart-button">24QuickCharts</button>
+                <button id="btn-direct-urls" class="chart-button">Direct URL's</button>
+            </div>
             <div id="chart-results">
-                <p>Chart links from 24Charts will be displayed here after a flight plan is made.</p>
+                <p>Chart links from our providers will be displayed here after a flight plan is submitted.</p>
             </div>
         </div>
         

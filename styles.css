@@ -142,6 +142,34 @@ header h1 {
 #chart-links {
     text-align: center;
     margin: 20px 0;
+    width: 100%;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.chart-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.chart-button {
+    padding: 8px 15px;
+    border: 1px solid #a9a9a9;
+    background-color: #f0f0f0;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+.chart-button:hover {
+    background-color: #e0e0e0;
+}
+
+.chart-button.active {
+    background-color: #d3d3d3;
 }
 
 #chart-results {
