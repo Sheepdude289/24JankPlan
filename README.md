@@ -1,2 +1,2 @@
-# Sheeps-Janky-Flight-Planner
+# 24JankPlan (Formally Sheeps Janky Flight Planner)
 An atrocity for CSS, but a flight planner for PTFS none the less.
