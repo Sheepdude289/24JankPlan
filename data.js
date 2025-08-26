@@ -1,0 +1,183 @@
+const airports = [
+    { icao: "IRFD", fullName: "Greater Rockford" },
+    { icao: "IPPH", fullName: "Perth" },
+    { icao: "IZOL", fullName: "Izolirani" },
+    { icao: "ITKO", fullName: "Tokyo" },
+    { icao: "ILAR", fullName: "Larnaca" },
+    { icao: "IIAB", fullName: "McConnell AFB" },
+    { icao: "IPAP", fullName: "Paphos" },
+    { icao: "IGRV", fullName: "Grindavik" },
+    { icao: "IDCS", fullName: "Saba" },
+    { icao: "ILKL", fullName: "Lukla" },
+    { icao: "IGAR", fullName: "Airbase Garry" },
+    { icao: "IBLT", fullName: "Boltic Airfield" },
+    { icao: "IMLR", fullName: "Mellor" },
+    { icao: "ITRC", fullName: "Training Centre" },
+    { icao: "IBTH", fullName: "Saint Barthélemy" },
+    { icao: "IHEN", fullName: "Henstridge" },
+    { icao: "IBAR", fullName: "Barra" },
+    { icao: "ISCM", fullName: "RAF Scampton" },
+    { icao: "ISAU", fullName: "Sauthemptona" },
+    { icao: "ISKP", fullName: "Skopelos" },
+    { icao: "IJAF", fullName: "Al Najaf" },
+    { icao: "IUFO", fullName: "UFO Base" }
+];
+
+const waypoints = [
+    { id: "QUEEN", xPercent: 51.53, yPercent: 54.27 },
+    { id: "LAVNO", xPercent: 54.87, yPercent: 55.77 },
+    { id: "JAMSI", xPercent: 59.70, yPercent: 59.44 },
+    { id: "ATPEV", xPercent: 57.20, yPercent: 54.61 },
+    { id: "SETHR", xPercent: 55.87, yPercent: 48.11 },
+    { id: "GOLDU", xPercent: 55.87, yPercent: 63.27 },
+    { id: "LAZER", xPercent: 59.37, yPercent: 64.77 },
+    { id: "ODOKU", xPercent: 50.20, yPercent: 69.77 },
+    { id: "REAPR", xPercent: 52.20, yPercent: 75.77 },
+    { id: "TRELN", xPercent: 45.37, yPercent: 77.27 },
+    { id: "EMJAY", xPercent: 41.97, yPercent: 69.92 },
+    { id: "POPUL", xPercent: 46.80, yPercent: 64.25 },
+    { id: "MOGTA", xPercent: 44.80, yPercent: 59.92 },
+    { id: "HAWFA", xPercent: 47.13, yPercent: 50.42 },
+    { id: "ICTAM", xPercent: 43.13, yPercent: 51.25 },
+    { id: "KUNAV", xPercent: 44.30, yPercent: 48.75 },
+    { id: "KENED", xPercent: 44.47, yPercent: 45.42 },
+    { id: "ENDER", xPercent: 37.97, yPercent: 42.92 },
+    { id: "BUCFA", xPercent: 38.30, yPercent: 48.75 },
+    { id: "POPUL", xPercent: 46.80, yPercent: 64.25 },
+    { id: "SUNST", xPercent: 33.80, yPercent: 46.25 },
+    { id: "SAWPE", xPercent: 32.13, yPercent: 50.25 },
+    { id: "BEANS", xPercent: 32.47, yPercent: 56.59 },
+    { id: "LOGAN", xPercent: 37.80, yPercent: 57.75 },
+    { id: "EXMOR", xPercent: 38.80, yPercent: 62.25 },
+    { id: "ALDER", xPercent: 32.11, yPercent: 67.82 },
+    { id: "HOGGS", xPercent: 30.94, yPercent: 72.48 },
+    { id: "STACK", xPercent: 23.27, yPercent: 69.4 },
+    { id: "SEEKS", xPercent: 25.44, yPercent: 61.82 },
+    { id: "WASTE", xPercent: 15.77, yPercent: 72.82 },
+    { id: "PACKT", xPercent: 16.27, yPercent: 66.65 },
+    { id: "HECKS", xPercent: 10.94, yPercent: 65.15 },
+    { id: "HACKE", xPercent: 12.27, yPercent: 57.65 },
+    { id: "GEORG", xPercent: 18.61, yPercent: 59.48 },
+    { id: "SPACE", xPercent: 25.27, yPercent: 52.32 },
+    { id: "SHREK", xPercent: 18.44, yPercent: 50.65 },
+    { id: "THACC", xPercent: 11.44, yPercent: 50.15 },
+    { id: "FRANK", xPercent: 11.61, yPercent: 43.48 },
+    { id: "UWAIS", xPercent: 10.94, yPercent: 37.82 },
+    { id: "ACRES", xPercent: 15.11, yPercent: 34.15 },
+    { id: "BOBOS", xPercent: 18.44, yPercent: 29.98 },
+    { id: "FROOT", xPercent: 23.27, yPercent: 24.98 },
+    { id: "BULLY", xPercent: 27.94, yPercent: 19.48 },
+    { id: "EURAD", xPercent: 32.77, yPercent: 26.82 },
+    { id: "THENR", xPercent: 23.11, yPercent: 32.32 },
+    { id: "BLANK", xPercent: 35.11, yPercent: 31.32 },
+    { id: "YOUTH", xPercent: 28.77, yPercent: 35.48 },
+    { id: "EZYDB", xPercent: 35.11, yPercent: 38.82 },
+    { id: "CELAR", xPercent: 25.11, yPercent: 45.98 },
+    { id: "SHELL", xPercent: 33.94, yPercent: 11.52 },
+    { id: "NIKON", xPercent: 44.77, yPercent: 10.18 },
+    { id: "CHILY", xPercent: 56.61, yPercent: 11.18 },
+    { id: "SHIBA", xPercent: 40.27, yPercent: 13.35 },
+    { id: "LETSE", xPercent: 50.11, yPercent: 15.35 },
+    { id: "HONDA", xPercent: 58.77, yPercent: 15.52 },
+    { id: "ASTRO", xPercent: 42.11, yPercent: 18.85 },
+    { id: "GULEG", xPercent: 37.11, yPercent: 22.52 },
+    { id: "PIPER", xPercent: 43.77, yPercent: 23.02 },
+    { id: "ONDER", xPercent: 49.44, yPercent: 24.68 },
+    { id: "KNIFE", xPercent: 54.61, yPercent: 23.35 },
+    { id: "TUDEP", xPercent: 41.61, yPercent: 28.35 },
+    { id: "ALLRY", xPercent: 58.61, yPercent: 28.18 },
+    { id: "CRAZY", xPercent: 67.70, yPercent: 15.32 },
+    { id: "WOTAN", xPercent: 79.70, yPercent: 16.65 },
+    { id: "WAGON", xPercent: 87.03, yPercent: 18.98 },
+    { id: "WELLS", xPercent: 72.53, yPercent: 21.82 },
+    { id: "SQUID", xPercent: 81.36, yPercent: 22.48 },
+    { id: "ZESTA", xPercent: 89.03, yPercent: 24.32 },
+    { id: "TINDR", xPercent: 61.53, yPercent: 24.98 },
+    { id: "NOONU", xPercent: 76.03, yPercent: 27.82 },
+    { id: "KELLA", xPercent: 80.03, yPercent: 27.82 },
+    { id: "STRAX", xPercent: 63.20, yPercent: 28.82 },
+    { id: "TALIS", xPercent: 73.36, yPercent: 33.15 },
+    { id: "SISTA", xPercent: 78.36, yPercent: 32.48 },
+    { id: "GERLD", xPercent: 41.53, yPercent: 30.32 },
+    { id: "RENDR", xPercent: 44.53, yPercent: 30.98 },
+    { id: "JOOPY", xPercent: 51.86, yPercent: 30.48 },
+    { id: "PROBE", xPercent: 47.70, yPercent: 34.32 },
+    { id: "DINER", xPercent: 56.53, yPercent: 34.48 },
+    { id: "WELSH", xPercent: 44.53, yPercent: 38.65 },
+    { id: "INDEX", xPercent: 48.70, yPercent: 41.65 },
+    { id: "GAVIN", xPercent: 58.36, yPercent: 43.32 },
+    { id: "OCEEN", xPercent: 62.20, yPercent: 46.32 },
+    { id: "SILVA", xPercent: 66.70, yPercent: 43.48 },
+    { id: "ANYMS", xPercent: 64.86, yPercent: 56.32 },
+    { id: "CAWZE", xPercent: 68.20, yPercent: 48.15 },
+    { id: "CAMEL", xPercent: 70.03, yPercent: 37.15 },
+    { id: "DUNKS", xPercent: 75.53, yPercent: 37.65 },
+    { id: "ROSMO", xPercent: 84.03, yPercent: 34.98 },
+    { id: "UDMUG", xPercent: 92.36, yPercent: 31.48 },
+    { id: "CYRIL", xPercent: 74.36, yPercent: 42.48 },
+    { id: "LLIME", xPercent: 94.70, yPercent: 35.82 },
+    { id: "DOGGO", xPercent: 81.20, yPercent: 47.82 },
+    { id: "MORRD", xPercent: 92.20, yPercent: 40.65 },
+    { id: "JUSTY", xPercent: 82.86, yPercent: 54.48 },
+    { id: "BILLO", xPercent: 89.70, yPercent: 50.48 },
+    { id: "ABSRS", xPercent: 95.70, yPercent: 47.48 },
+    { id: "CHAIN", xPercent: 95.70, yPercent: 56.65 },
+    { id: "FORIA", xPercent: 58.53, yPercent: 74.15 },
+    { id: "AQWRT", xPercent: 65.36, yPercent: 69.98 },
+    { id: "GRASS", xPercent: 67.53, yPercent: 61.82 },
+    { id: "RENTS", xPercent: 73.36, yPercent: 58.98 },
+    { id: "JACKI",  xPercent: 79.70, yPercent: 64.65 },
+    { id: "BOBUX", xPercent: 84.03, yPercent: 69.15 },
+    { id: "DEBUG", xPercent: 89.70, yPercent: 64.65 },
+    { id: "NUBER", xPercent: 95.70, yPercent: 70.48 },
+    { id: "JAZZR", xPercent: 89.36, yPercent: 74.32 },
+    { id: "MUONE", xPercent: 83.20, yPercent: 74.32 },
+];
+
+const vors = [
+    { id: "BAR",  xPercent: 24.36, yPercent: 65.39 },
+    { id: "KRT",  xPercent: 14.53, yPercent: 61.06 },
+    { id: "GOL",  xPercent: 16.70, yPercent: 40.39 },
+    { id: "HAW",  xPercent: 23.20, yPercent: 37.39 },
+    { id: "COC",  xPercent: 65.53, yPercent: 21.23 },
+    { id: "BTM",  xPercent: 72.20, yPercent: 26.89 },
+    { id: "ORG",  xPercent: 68.20, yPercent: 30.56 },
+    { id: "TRE",  xPercent: 80.53, yPercent: 42.73 },
+    { id: "DIZ",  xPercent: 91.03, yPercent: 45.73 },
+    { id: "DET",  xPercent: 89.36, yPercent: 56.06 },
+    { id: "KIN",  xPercent: 76.36, yPercent: 63.39 },
+    { id: "HUT",  xPercent: 76.20, yPercent: 72.39 },
+    { id: "DIR",  xPercent: 63.36, yPercent: 76.06 },
+    { id: "CAN",  xPercent: 61.03, yPercent: 72.23 },
+    { id: "VOX",  xPercent: 62.53, yPercent: 38.89 },
+    { id: "ROM",  xPercent: 60.03, yPercent: 33.89 },
+    { id: "RES",  xPercent: 53.36, yPercent: 39.23 },
+    { id: "CLR", xPercent: 68.36, yPercent: 53.74 },
+    { id: "DEL", xPercent: 75.20, yPercent: 50.74 },
+]
+
+// yo cuh if dis airport y value within 30-40 percent make it use 3 waypoints pls and otherwise 2 BI- 
+
+const mapAirports = [
+    { id: "IRFD", xPercent: 50.33, yPercent: 57.59 }, // Greater Rockford
+    { id: "IPPH", xPercent: 66.33, yPercent: 27.25 }, // Perth Intl.
+    { id: "IZOL", xPercent: 84.67, yPercent: 44.25 }, // Izolirani Intl.
+    { id: "ITKO", xPercent: 47.00, yPercent: 17.25 }, // Tokyo Intl.
+    { id: "ILAR", xPercent: 70.67, yPercent: 65.92 }, // Larnaca Intl.
+    { id: "IIAB", xPercent: 71.50, yPercent: 72.79 }, // McConnell AFB
+    { id: "IPAP", xPercent: 77.17, yPercent: 67.62 }, // Paphos Intl.
+    { id: "IGRV", xPercent: 20.67, yPercent: 39.95 }, // Grindavik
+    { id: "IDCS", xPercent: 48.17, yPercent: 8.79 }, // Saba Airport
+    { id: "ILKL", xPercent: 70.50, yPercent: 28.29 }, // Lukla Airport
+    { id: "IGAR", xPercent: 39.67, yPercent: 60.79 }, // Air Base Garry
+    { id: "IBLT", xPercent: 43.83, yPercent: 53.45 }, // Boltic Airfield
+    { id: "IMLR", xPercent: 38.67, yPercent: 52.92 }, // Mellor Intl.
+    { id: "ITRC", xPercent: 51.83, yPercent: 64.95 }, // Training Centre
+    { id: "IBTH", xPercent: 57.83, yPercent: 39.09 }, // Saint Barthélemy
+    { id: "IHEN", xPercent: 65.17, yPercent: 73.45 }, // Henstridge Airfield
+    { id: "IBAR", xPercent: 74.00, yPercent: 71.29 }, // Barra Airport
+    { id: "ISCM", xPercent: 81.00, yPercent: 38.12 }, // RAF Scampton
+    { id: "ISAU", xPercent: 18.17, yPercent: 62.28 }, // Sauthemptona Airport
+    { id: "ISKP", xPercent: 72.83, yPercent: 51.45 }, // Skopelos Airfield
+    { id: "IJAF", xPercent: 87.67, yPercent: 41.62 }, // Al Najaf
+];
