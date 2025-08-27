@@ -3,6 +3,10 @@
     -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
 }
 
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
 /* Reset button and input styles for mobile */
 button, input, select, textarea {
     -webkit-appearance: none;
