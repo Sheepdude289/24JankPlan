@@ -74,7 +74,7 @@ function generateRandomFlight() {
       "IPPH": { type: "major", location: "perth island", x: 66.33, y: 27.25 },
       "ILKL": { type: "small", location: "lukla island", x: 70.50, y: 28.29 },
       "IZOL": { type: "major", location: "izolirani island", x: 84.67, y: 44.25 },
-      "IJAF": { type: "regional", location: "al najaf", x: 87.67, y: 41.62 },
+      "IJAF": { type: "small", location: "al najaf", x: 87.67, y: 41.62 },
       "ILAR": { type: "major", location: "larnaca", x: 70.67, y: 65.92 },
       "IPAP": { type: "major", location: "paphos", x: 77.17, y: 67.62 },
       "IHEN": { type: "small", location: "henstridge", x: 65.17, y: 73.45 },
@@ -86,9 +86,11 @@ function generateRandomFlight() {
 
     // Airport size compatibility
     const typeAllowance = {
-        small: new Set(["small"]),
-        regional: new Set(["small", "regional"]),
-        major: new Set(["small", "regional", "major"])
+        // Which AIRPORT TYPES each AIRCRAFT SIZE can use
+        // small aircraft can use any airport, regional can use regional/major, major can use major only
+        small: new Set(["small", "regional", "major"]),
+        regional: new Set(["regional", "major"]),
+        major: new Set(["major"])
     };
 
     // Build a list of valid airport ICAOs present in airportSpecs
@@ -124,23 +126,25 @@ function generateRandomFlight() {
         const spec = aircraftData[ac];
         if (!spec) continue;
         const allowed = typeAllowance[spec.size];
-        // Candidate airports compatible with aircraft size
+        // Candidate departure airports compatible with aircraft size
         const depCandidates = airportICAOs.filter(icao => allowed.has(airportSpecs[icao].type));
         if (depCandidates.length === 0) continue;
 
         // Try up to N attempts to find a pair within range
         for (let attempt = 0; attempt < 30; attempt++) {
-            const dep = airportSpecs[depCandidates[Math.floor(Math.random() * depCandidates.length)]];
+            const depICAO = depCandidates[Math.floor(Math.random() * depCandidates.length)];
+            const dep = airportSpecs[depICAO];
             // Arrival must be different and compatible type
-            const arrCandidates = airportICAOs.filter(icao => icao !== Object.keys(airportSpecs).find(k => airportSpecs[k] === dep) && allowed.has(airportSpecs[icao].type));
+            const arrCandidates = airportICAOs.filter(icao => icao !== depICAO && allowed.has(airportSpecs[icao].type));
             if (arrCandidates.length === 0) break;
-            const arr = airportSpecs[arrCandidates[Math.floor(Math.random() * arrCandidates.length)]];
+            const arrICAO = arrCandidates[Math.floor(Math.random() * arrCandidates.length)];
+            const arr = airportSpecs[arrICAO];
             const d = dist(dep, arr);
             if (d <= spec.range) {
                 selectedAircraft = ac;
-                // Extract ICAOs back
-                departureICAO = Object.entries(airportSpecs).find(([k, v]) => v === dep)[0];
-                arrivalICAO = Object.entries(airportSpecs).find(([k, v]) => v === arr)[0];
+                // We already have the ICAO codes
+                departureICAO = depICAO;
+                arrivalICAO = arrICAO;
                 break;
             }
         }
