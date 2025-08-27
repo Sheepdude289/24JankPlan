@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <title>24JankPlan</title>
+    <script src="darkmode.js" defer></script>
 </head>
 <body>
     
@@ -22,6 +23,12 @@
             <a href="#" class="header-button" aria-label=Roadmap>
                 <i class="fa-solid fa-road"></i>
             </a>
+            <button id="tools-toggle" class="header-button" aria-label="Tools">
+                <i class="fa-solid fa-screwdriver-wrench"></i>
+            </button>
+            <button id="dark-mode-toggle" class="header-button" aria-label="Toggle dark mode">
+                <i class="fa-solid fa-moon"></i>
+            </button>
         </div>
     </header>
 
@@ -93,6 +100,7 @@
                 <br>
 
                 <button type="submit">Plan Flight</button>
+                <button type="button" id="random-flight" style="margin-left: 10px;">Random Flight</button>
                 <button type="button" id="reset-form" style="margin-left: 10px;">Reset Flight Plan</button>
                 <button type="button" id="auto-fill-form" style="background-color: #4a90e2; color: white; margin-left: 10px; display: none;">Auto Fill Form</button>
             </form>
@@ -137,10 +145,55 @@
     <!-- Decided to section out all my JS files for easier organization -->
 
     <script src="data.js"></script>
-    <script src="utils.js"></script>
+    <div id="tools-modal" class="modal">
+        <div class="modal-content">
+            <h2>Useful Tools</h2>
+            <div class="tools-list">
+                <div class="tool-item">
+                    <h3>24Pilot</h3>
+                    <p>For ILS and navigation.</p>
+                    <div class="tool-actions">
+                        <a href="https://24pilot.ptfsrp.com/" target="_blank" class="tool-link">Open 24Pilot</a>
+                        <button class="copy-fpl-btn" title="Copy flight plan for 24Pilot">
+                            <i class="fa-regular fa-copy"></i>
+                            <span>Copy raw FPL for 24Pilot</span>
+                        </button>
+                    </div>
+                </div>
+                <hr>
+                <div class="tool-item">
+                    <h3>24Spy</h3>
+                    <p>For tracking your flight.</p>
+                    <a href="https://tico09.com/24SPY/" target="_blank" class="tool-link">Open 24Spy</a>
+                </div>
+                <hr>
+                <div class="tool-item">
+                    <h3>24Charts</h3>
+                    <p>For charts for your flight.</p>
+                    <a href="https://charts.awdevsoftware.org/" target="_blank" class="tool-link">Open 24Charts</a>
+                </div>
+                <hr>
+                <div class="tool-item">
+                    <h3>24QuickCharts</h3>
+                    <p>Alternative chart provider.</p>
+                    <a href="https://atc24resources.github.io/24QuickCharts/" target="_blank" class="tool-link">Open 24QuickCharts</a>
+                </div>
+                <hr>
+                <div class="tool-item">
+                    <h3>24Schedule</h3>
+                    <p>For viewing other flights and their schedules.</p>
+                    <a href="https://two4schedule.onrender.com/" target="_blank" class="tool-link">Open 24Schedule</a>
+                </div>
+            </div>
+            <button class="ok-button">OK</button>
+        </div>
+    </div>
+
+    <script src="modal.js"></script>
     <script src="render.js"></script>
     <script src="charts.js"></script>
-    <script src="modal.js"></script>
     <script src="events.js"></script>
+    <script src="utils.js"></script>
+    <script src="tools.js"></script>
 </body>
 </html>

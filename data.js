@@ -20,7 +20,6 @@ const airports = [
     { icao: "ISAU", fullName: "Sauthemptona" },
     { icao: "ISKP", fullName: "Skopelos" },
     { icao: "IJAF", fullName: "Al Najaf" },
-    { icao: "IUFO", fullName: "UFO Base" }
 ];
 
 const waypoints = [

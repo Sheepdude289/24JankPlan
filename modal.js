@@ -14,12 +14,13 @@ function showModal(message, onConfirm = null) {
     
     // Create modal
     const modal = document.createElement('div');
-    modal.style.backgroundColor = '#f0f0f0';
+    modal.style.backgroundColor = 'var(--modal-bg, #f0f0f0)';
     modal.style.padding = '20px';
     modal.style.borderRadius = '5px';
     modal.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
     modal.style.maxWidth = '80%';
     modal.style.textAlign = 'center';
+    modal.style.color = 'var(--text-color)';
     
     // Add message with line break if it contains 'Please use', otherwise just use the message as is
     const messageElement = document.createElement('div');
@@ -121,21 +122,31 @@ function showModal(message, onConfirm = null) {
             document.removeEventListener('keydown', onKeyDown);
         }
     });
+    
+    return modal;
 }
 
 // Function to show roadmap modal
 function showRoadmapModal() {
     const content = `
-        <div style="max-height: 60vh; overflow-y: auto; padding-right: 15px; margin-right: -15px;">
-            <h2>Site Roadmap</h2>
-            <h3>Planned Updates for v1.4.0</h3>
-            <ul>
-                <li>Adding more chart providers</li>
-                <li>Adding direct chart URL's</li>
-                <li>Adding random flight generator</li>
-                <li>Multi-leg flight planning</li>
-            </ul>
+        <h2>Site Roadmap</h2>
+        <div class="roadmap-container">
+            <div class="roadmap-item">
+                <h3>Planned Features for v1.4.0</h3>
+                <ul>
+                    <li>Multi-leg flight planning</li>
+                    <li>Custom FPL formatting</li>
+                </ul>
+            </div>
+            <hr>
+            <div class="roadmap-item">
+                <h3>Suggestions or Bugs?</h3>
+                <p>Have ideas for new features or found a bug?</p>
+                <p>DM me on Discord, my username is SheepShoop!</p>
+            </div>
         </div>
     `;
+    
+    // Use the existing showModal function which already handles the OK button
     showModal(content);
 }

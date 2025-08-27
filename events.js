@@ -15,6 +15,189 @@ function getIngameCallsign(input) {
     return input; // Simply return input as is
 }
 
+// Function to generate random flight data
+function generateRandomFlight() {
+    // Airline fleets (provided)
+    const aircraftByAirline = {
+      "DAL": ["A220", "A320", "A330", "A350", "B717", "B737", "B757", "B767", "B727", "B747", "MD11", "MD90", "CRJ700"],
+      "NKS": ["A320"],
+      "BAW": ["A320", "A350", "A380", "B777", "B787", "B737", "B707", "B727", "B747", "B757", "B767", "CONC", "CRJ700"],
+      "SAS": ["A320", "A330", "A350", "ATR72", "E190", "B737", "B747", "B757", "B767", "MD90"],
+      "AAL": ["A320", "B737", "B777", "B787", "B707", "B727", "B747", "B757", "B767", "MD11", "CRJ700"],
+      "DLH": ["A220", "A320", "A330", "A340", "A350", "A380", "B747", "B767", "B777", "B787", "B707", "B727", "B737"],
+      "UPS": ["B757F", "B767F", "MD11F", "B747F", "B727F"],
+      "FDX": ["B757F", "B767F", "B777F", "MD11F", "ATR72F", "C208F", "B727F", "B737BCF"]
+    };
+
+    // Aircraft size and range (map units)
+    const aircraftData = {
+      "ATR72": { size: "small", range: 15 },
+      "C208F": { size: "small", range: 12 },
+      "CRJ700": { size: "small", range: 20 },
+      "A220": { size: "regional", range: 35 },
+      "A320": { size: "regional", range: 30 },
+      "E190": { size: "regional", range: 28 },
+      "B717": { size: "regional", range: 25 },
+      "B727": { size: "regional", range: 30 },
+      "B737": { size: "regional", range: 32 },
+      "B737BCF": { size: "regional", range: 30 },
+      "B727F": { size: "regional", range: 30 },
+      "CONC": { size: "regional", range: 45 },
+      "A330": { size: "major", range: 70 },
+      "A340": { size: "major", range: 75 },
+      "A350": { size: "major", range: 80 },
+      "A380": { size: "major", range: 85 },
+      "B707": { size: "regional", range: 65 },
+      "B747": { size: "major", range: 75 },
+      "B757": { size: "major", range: 60 },
+      "B767": { size: "major", range: 65 },
+      "B777": { size: "major", range: 80 },
+      "B787": { size: "major", range: 85 },
+      "MD11": { size: "major", range: 70 },
+      "MD90": { size: "major", range: 55 },
+      "B757F": { size: "major", range: 60 },
+      "B767F": { size: "major", range: 65 },
+      "B777F": { size: "major", range: 80 },
+      "MD11F": { size: "major", range: 70 },
+      "B747F": { size: "major", range: 75 }
+    };
+
+    // Airport specs (type + coordinates) keyed by ICAO
+    const airportSpecs = {
+      "IRFD": { type: "major", location: "rockford island", x: 50.33, y: 57.59 },
+      "IMLR": { type: "major", location: "rockford island", x: 38.67, y: 52.92 },
+      "IBLT": { type: "small", location: "rockford island", x: 43.83, y: 53.45 },
+      "ISAU": { type: "regional", location: "sauthemptona island", x: 18.17, y: 62.28 },
+      "IGRV": { type: "major", location: "grindavik island", x: 20.67, y: 39.95 },
+      "ITKO": { type: "major", location: "tokyo island", x: 47.00, y: 17.25 },
+      "IDCS": { type: "small", location: "saba island", x: 48.17, y: 8.79 },
+      "IPPH": { type: "major", location: "perth island", x: 66.33, y: 27.25 },
+      "ILKL": { type: "small", location: "lukla island", x: 70.50, y: 28.29 },
+      "IZOL": { type: "major", location: "izolirani island", x: 84.67, y: 44.25 },
+      "IJAF": { type: "regional", location: "al najaf", x: 87.67, y: 41.62 },
+      "ILAR": { type: "major", location: "larnaca", x: 70.67, y: 65.92 },
+      "IPAP": { type: "major", location: "paphos", x: 77.17, y: 67.62 },
+      "IHEN": { type: "small", location: "henstridge", x: 65.17, y: 73.45 },
+      "IBTH": { type: "small", location: "saint barthelemy", x: 57.83, y: 39.09 }
+    };
+
+    // Helper: Euclidean distance in map units
+    const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+
+    // Airport size compatibility
+    const typeAllowance = {
+        small: new Set(["small"]),
+        regional: new Set(["small", "regional"]),
+        major: new Set(["small", "regional", "major"])
+    };
+
+    // Build a list of valid airport ICAOs present in airportSpecs
+    const airportICAOs = Object.keys(airportSpecs);
+
+    // Airline to in-game analog mapping
+    const airlineAnalogs = {
+        "DAL": "Belta",
+        "NKS": "Sprit",
+        "BAW": "Speedbird",
+        "SAS": "Scandialien",
+        "AAL": "Americano",
+        "DLH": "Lifthansa",
+        "UPS": "SUS",
+        "FDX": "Tedex"
+    };
+
+    // Pick random airline
+    const airlines = Object.keys(aircraftByAirline);
+    const airline = airlines[Math.floor(Math.random() * airlines.length)];
+    const flightNumber = Math.floor(100 + Math.random() * 900);
+    const callsign = `${airline}${flightNumber}`;
+    const airlineAnalog = airlineAnalogs[airline] || airline; // Fallback to original if no analog
+    const ingameCallsign = `${airlineAnalog}-[Insert Callsign #]`;
+
+    // Try aircraft in randomized order until we find a valid route
+    const shuffledFleet = [...aircraftByAirline[airline]].sort(() => Math.random() - 0.5);
+    let selectedAircraft = null;
+    let departureICAO = null;
+    let arrivalICAO = null;
+
+    for (const ac of shuffledFleet) {
+        const spec = aircraftData[ac];
+        if (!spec) continue;
+        const allowed = typeAllowance[spec.size];
+        // Candidate airports compatible with aircraft size
+        const depCandidates = airportICAOs.filter(icao => allowed.has(airportSpecs[icao].type));
+        if (depCandidates.length === 0) continue;
+
+        // Try up to N attempts to find a pair within range
+        for (let attempt = 0; attempt < 30; attempt++) {
+            const dep = airportSpecs[depCandidates[Math.floor(Math.random() * depCandidates.length)]];
+            // Arrival must be different and compatible type
+            const arrCandidates = airportICAOs.filter(icao => icao !== Object.keys(airportSpecs).find(k => airportSpecs[k] === dep) && allowed.has(airportSpecs[icao].type));
+            if (arrCandidates.length === 0) break;
+            const arr = airportSpecs[arrCandidates[Math.floor(Math.random() * arrCandidates.length)]];
+            const d = dist(dep, arr);
+            if (d <= spec.range) {
+                selectedAircraft = ac;
+                // Extract ICAOs back
+                departureICAO = Object.entries(airportSpecs).find(([k, v]) => v === dep)[0];
+                arrivalICAO = Object.entries(airportSpecs).find(([k, v]) => v === arr)[0];
+                break;
+            }
+        }
+        if (selectedAircraft) break;
+    }
+
+    // If we still didn't find a valid combo, fall back to a small aircraft universally accepted
+    if (!selectedAircraft) {
+        const fallbackAirline = airline;
+        const smallFromAirline = aircraftByAirline[fallbackAirline].find(a => aircraftData[a] && aircraftData[a].size === 'small');
+        selectedAircraft = smallFromAirline || 'CRJ700';
+        // Pick two small-compatible airports
+        const allowed = typeAllowance[aircraftData[selectedAircraft]?.size || 'small'];
+        const comps = airportICAOs.filter(icao => allowed.has(airportSpecs[icao].type));
+        if (comps.length >= 2) {
+            const i1 = Math.floor(Math.random() * comps.length);
+            let i2 = Math.floor(Math.random() * comps.length);
+            if (i2 === i1) i2 = (i2 + 1) % comps.length;
+            departureICAO = comps[i1];
+            arrivalICAO = comps[i2];
+        } else {
+            // Absolute fallback to any two
+            const any = airportICAOs;
+            departureICAO = any[0];
+            arrivalICAO = any[1] || any[0];
+        }
+    }
+
+    // Random flight level and rules
+    const flightLevels = ['020', '030', '035', '040', '045', '050', '055', '060'];
+    const randomFlightLevel = flightLevels[Math.floor(Math.random() * flightLevels.length)];
+    const flightRules = Math.random() > 0.5 ? 'IFR' : 'VFR';
+
+    // Fill in the form
+    document.getElementById('callsign').value = callsign;
+    document.getElementById('ingame-callsign').value = ingameCallsign;
+    document.getElementById('aircraft').value = selectedAircraft;
+    document.getElementById('departure').value = departureICAO;
+    document.getElementById('arrival').value = arrivalICAO;
+    document.getElementById('flight-level').value = randomFlightLevel;
+
+    // Set flight rules button
+    if (flightRules === 'IFR') {
+        ifrButton.click();
+    } else {
+        vfrButton.click();
+    }
+
+    // Trigger the route generation after a short delay to ensure the form is updated
+    setTimeout(() => {
+        document.getElementById('generate-flight-plan').click();
+    }, 100);
+}
+
+// Add event listener for random flight button
+document.getElementById('random-flight').addEventListener('click', generateRandomFlight);
+
 // Form submission handler
 form.addEventListener('submit', (e) => {
     e.preventDefault();
