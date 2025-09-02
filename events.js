@@ -99,7 +99,7 @@ function generateRandomFlight() {
     // Airline to in-game analog mapping
     const airlineAnalogs = {
         "DAL": "Belta",
-        "NKS": "Sprit",
+        "NKS": "Sprit Wings",
         "BAW": "Speedbird",
         "SAS": "Scandialien",
         "AAL": "Americano",
